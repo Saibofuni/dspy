@@ -55,17 +55,17 @@ optimized_rag = tp.compile(RAG(), trainset=trainset,
                            requires_permission_to_run=False)
 
 
-# show the cost
-cost = sum([x['cost'] for x in rag.history if x['cost'] is not None])  # in USD, as calculated by LiteLLM for certain providers
-cost = sum([x['cost'] for x in optimized_rag.history if x['cost'] is not None])  # in USD, as calculated by LiteLLM for certain providers
-print(f"Cost of RAG: {cost}")
-print(f"Cost of optimized RAG: {cost}")
+# # show the cost
+# cost = sum([x['cost'] for x in rag.history if x['cost'] is not None])  # in USD, as calculated by LiteLLM for certain providers
+# cost = sum([x['cost'] for x in optimized_rag.history if x['cost'] is not None])  # in USD, as calculated by LiteLLM for certain providers
+# print(f"Cost of RAG: {cost}")
+# print(f"Cost of optimized RAG: {cost}")
 
 
 # save and load the optimized RAG module
-optimized_rag.save("optimized_rag.json")
+optimized_rag.save("E:\\program\\agent\\dspy\\optimized_rag.json")
 
 # loaded_rag = RAG()
-# loaded_rag.load("optimized_rag.json")
+# loaded_rag.load("E:\\program\\agent\\dspy\\optimized_rag.json")
 
 # loaded_rag(question="cmd+tab does not work on hidden or minimized windows")

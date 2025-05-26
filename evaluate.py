@@ -23,19 +23,20 @@ print(f"{example}\n\n")
 random.Random(0).shuffle(data)
 trainset, devset, testset = data[:200], data[200:500], data[500:1000]
 
-
-# -------------- use SemanticF1 to evaluate part of performance of the model------------
 # Instantiate the metric.
 metric = SemanticF1(decompositional=True)
-# Produce a prediction from our `cot` module, using the `example` above as input.
-pred = cot(**example.inputs())
-# Compute the metric score for the prediction.
-score = metric(example, pred)
 
-print(f"Question: \t {example.question}\n")
-print(f"Gold Response: \t {example.response}\n")
-print(f"Predicted Response: \t {pred.response}\n")
-print(f"Semantic F1 Score: {score:.2f}")
+
+# -------------- use SemanticF1 to evaluate part of performance of the model------------
+# # Produce a prediction from our `cot` module, using the `example` above as input.
+# pred = cot(**example.inputs())
+# # Compute the metric score for the prediction.
+# score = metric(example, pred)
+
+# print(f"Question: \t {example.question}\n")
+# print(f"Gold Response: \t {example.response}\n")
+# print(f"Predicted Response: \t {pred.response}\n")
+# print(f"Semantic F1 Score: {score:.2f}")
 # -------------- use SemanticF1 to evaluate part of performance of the model------------
 
 
@@ -47,3 +48,19 @@ evaluate = dspy.Evaluate(devset=devset, metric=metric, num_threads=24,
 # Evaluate the Chain-of-Thought program.
 evaluate(cot)
 # ---------------- use dspy.Evaluate and SemanticF1 to evaluate all the performance of the model------------
+
+
+# -------------- use MIPROv2 to optimize the Chain-of-Thought program------------
+# optimize the RAG prompt using dspy
+tp = dspy.MIPROv2(metric=metric, auto="medium", num_threads=24)  # use fewer threads if your rate limit is small
+
+optimized_rag = tp.compile(cot, trainset=trainset,
+                           max_bootstrapped_demos=2, max_labeled_demos=2,
+                           requires_permission_to_run=False)
+
+# save and load the optimized RAG module
+optimized_rag.save("E:\\program\\agent\\dspy\\optimized_cot.json")
+
+loaded_rag = cot
+loaded_rag.load("E:\\program\\agent\\dspy\\optimized_cot.json")
+evaluate(loaded_rag)

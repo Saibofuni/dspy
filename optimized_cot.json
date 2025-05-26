@@ -1,0 +1,53 @@
+{
+  "predict": {
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "question": "whats the difference between \/sbin\/nologin and \/bin\/false",
+        "reasoning": "Both `\/sbin\/nologin` and `\/bin\/false` are used as shell entries in `\/etc\/passwd` to prevent user logins, but they behave differently in terms of feedback and system behavior.",
+        "response": "The key differences are:  \n\n1. **Feedback**:  \n   - `\/sbin\/nologin` displays a message (e.g., \"This account is currently not available\") when a login attempt is made.  \n   - `\/bin\/false` simply exits silently without any message.  \n\n2. **Use Case**:  \n   - `\/sbin\/nologin` is often used for system accounts (e.g., `www-data`, `mysql`) where a polite rejection message is preferred.  \n   - `\/bin\/false` is stricter and used when absolutely no interaction (even a message) is desired.  \n\n3. **Exit Status**:  \n   - Both return a non-zero exit code, but `\/sbin\/nologin` can be customized (via `\/etc\/nologin.txt`) to show a tailored message.  \n\n4. **Security**:  \n   - Neither allows shell access, but `\/bin\/false` is marginally more restrictive since it provides zero feedback."
+      },
+      {
+        "question": "can i create a shortcut to open a specific application on os x?",
+        "response": "While Mac OS X does have a built-in method for setting keyboard shortcuts, it doesn't work for Firefox.  \nKarabiner-Elements allows for customization of keyboard shortcuts on Mac versions 10.12 and later, including executing shell commands.  \nAlfred, particularly in its Power Pack version, offers the ability to map shortcuts to applications, among its various features.  \nUsing Automator Services in combination with built-in keyboard shortcuts is another method to create shortcuts without third party apps.  \nSpark 3 is a free Shortcuts manager which enables you to create Hot Keys to launch applications and documents, execute AppleScript, control iTunes, etc.  \nSome users have found Apptivate to be the easiest to use for assigning global shortcuts to apps.  \nTo open Terminal with a shortcut on Mac without third-party software, one can utilize a custom Quick Action created in Automator and assign it a unique hotkey, like \u2318 + \u2325 + F12.  \nFor iTerm2 users with Oh My Zsh, one can replace AppleScript with the 'Launch Application' action in Automator.   \nFurthermore, Terminal app already has built-in shortcut keys for opening new terminals or tabs at a folder location: New Terminal at Folder ^+\u21e7+T New Terminal at Tab Folder \u2325+^+\u21e7+T.",
+        "gold_doc_ids": [
+          2601,
+          2610,
+          2619,
+          4709,
+          2187,
+          8376,
+          3281,
+          4373
+        ]
+      }
+    ],
+    "signature": {
+      "instructions": "Given a technical question related to macOS, Unix\/Linux commands, or system administration, provide a detailed, step-by-step reasoning process followed by a clear and actionable response. \n\n1. **Reasoning**: Start with \"Let's think step by step in order to...\" and systematically break down the problem, explaining the underlying concepts, potential solutions, and any relevant constraints or platform-specific considerations.  \n2. **Response**: Deliver a concise answer with:  \n   - **Formatted solutions** (e.g., bullet points, code blocks).  \n   - **Multiple approaches** if applicable (e.g., native vs. third-party tools).  \n   - **Examples** or commands for immediate use.  \n\nEnsure the response is technically accurate, addresses the question directly, and educates the user while solving their problem.  \n\nExample structure:  \n```\nReasoning: Let's think step by step in order to [explain logic here]...  \nResponse:  \n- Solution 1: [Actionable steps].  \n- Solution 2: [Alternative approach].  \n  Example: `command --flags`  \n```",
+      "fields": [
+        {
+          "prefix": "Question:",
+          "description": "${question}"
+        },
+        {
+          "prefix": "Reasoning: Let's think step by step in order to",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Response:",
+          "description": "${response}"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.13",
+      "dspy": "2.6.14",
+      "cloudpickle": "3.1"
+    }
+  }
+}
