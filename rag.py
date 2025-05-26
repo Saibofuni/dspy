@@ -1,6 +1,8 @@
+from dspy.evaluate import SemanticF1
 import dspy
 import os
 import ujson
+import random
 
 LM = dspy.LM('deepseek/deepseek-chat', api_key=os.environ.get("deepseek_api"), api_base="https://api.deepseek.com")
 dspy.configure(lm=LM)
@@ -29,4 +31,41 @@ class RAG(dspy.Module):
 rag = RAG()
 rag(question="what are high memory and low memory on linux?")
 
-dspy.inspect_history()
+# dspy.inspect_history()
+
+
+# evaluate the RAG module on the RAG-QA Arena dataset.
+with open("E:\\program\\agent\\dspy\\ragqa_arena_tech_examples.jsonl") as f:
+    data = [ujson.loads(line) for line in f]
+data = [dspy.Example(**d).with_inputs('question') for d in data]
+random.Random(0).shuffle(data)
+trainset, devset, testset = data[:200], data[200:500], data[500:1000]
+metric = SemanticF1(decompositional=True)
+evaluate = dspy.Evaluate(devset=devset, metric=metric, num_threads=24,
+                          display_progress=True, display_table=2)
+
+evaluate(RAG())
+
+
+# optimize the RAG prompt using dspy
+tp = dspy.MIPROv2(metric=metric, auto="medium", num_threads=24)  # use fewer threads if your rate limit is small
+
+optimized_rag = tp.compile(RAG(), trainset=trainset,
+                           max_bootstrapped_demos=2, max_labeled_demos=2,
+                           requires_permission_to_run=False)
+
+
+# show the cost
+cost = sum([x['cost'] for x in rag.history if x['cost'] is not None])  # in USD, as calculated by LiteLLM for certain providers
+cost = sum([x['cost'] for x in optimized_rag.history if x['cost'] is not None])  # in USD, as calculated by LiteLLM for certain providers
+print(f"Cost of RAG: {cost}")
+print(f"Cost of optimized RAG: {cost}")
+
+
+# save and load the optimized RAG module
+optimized_rag.save("optimized_rag.json")
+
+# loaded_rag = RAG()
+# loaded_rag.load("optimized_rag.json")
+
+# loaded_rag(question="cmd+tab does not work on hidden or minimized windows")
