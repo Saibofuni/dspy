@@ -4,8 +4,16 @@ from dspy.evaluate import SemanticF1
 import os
 from dspy.utils import download
 import ujson
+import json
 
-lm = dspy.LM('deepseek/deepseek-chat', api_key=os.environ.get("deepseek_api"), api_base="https://api.deepseek.com")
+
+
+api_config_path = os.environ.get("api_configs")
+with open(api_config_path, "r", encoding="utf-8") as f:
+    api_configs = json.load(f)
+    api_key = api_configs['deepseek']['api_key']
+
+lm = dspy.LM('deepseek/deepseek-chat', api_key=api_key, api_base="https://api.deepseek.com")
 dspy.configure(lm=lm)
 dspy.settings.configure(track_usage=True)
 
@@ -50,7 +58,7 @@ evaluate(cot)
 # ---------------- use dspy.Evaluate and SemanticF1 to evaluate all the performance of the model------------
 
 
-# -------------- use MIPROv2 to optimize the Chain-of-Thought program------------
+# -------------- use MIPROv2 to optimize the Chain-of-Thought program (COSTLY!!!)------------
 # optimize the RAG prompt using dspy
 tp = dspy.MIPROv2(metric=metric, auto="medium", num_threads=24)  # use fewer threads if your rate limit is small
 

@@ -3,8 +3,18 @@ import dspy
 import os
 import ujson
 import random
+import json
 
-LM = dspy.LM('deepseek/deepseek-chat', api_key=os.environ.get("deepseek_api"), api_base="https://api.deepseek.com")
+
+api_config_path = os.environ.get("api_configs")
+with open(api_config_path, "r", encoding="utf-8") as f:
+    api_configs = json.load(f)
+    dp_api_key = api_configs['deepseek']['api_key']
+    e_api_key = api_configs['azure-te3s']['api_key']
+    e_endpoint = api_configs['azure-te3s']['base_url']
+    e_version = api_configs['azure-te3s']['api_version']
+
+LM = dspy.LM('deepseek/deepseek-chat', api_key=dp_api_key, api_base="https://api.deepseek.com")
 dspy.configure(lm=LM)
 
 max_characters = 6000  # for truncating >99th percentile of documents
@@ -15,7 +25,9 @@ with open("E:\\program\\agent\\dspy\\ragqa_arena_tech_corpus.jsonl") as f:
     corpus = [ujson.loads(line)['text'][:max_characters] for line in f]
     print(f"Loaded {len(corpus)} documents. Will encode them below.")
 
-embedder = dspy.Embedder('azure/text-embedding-3-small', dimensions=512, api_key=os.environ.get("t_em_3s_api"), api_base=os.environ.get("t_em_3s_endpoint"), api_version="2024-12-01-preview")
+
+
+embedder = dspy.Embedder('azure/text-embedding-3-small', dimensions=512, api_key=e_api_key, api_base=e_endpoint, api_version=e_version)
 search = dspy.retrievers.Embeddings(embedder=embedder, corpus=corpus, k=topk_docs_to_retrieve)
 
 class RAG(dspy.Module):
@@ -55,7 +67,7 @@ optimized_rag = tp.compile(RAG(), trainset=trainset,
                            requires_permission_to_run=False)
 
 
-# # show the cost
+# # show the cost. This function cannot be used with dspy 2.6.14
 # cost = sum([x['cost'] for x in rag.history if x['cost'] is not None])  # in USD, as calculated by LiteLLM for certain providers
 # cost = sum([x['cost'] for x in optimized_rag.history if x['cost'] is not None])  # in USD, as calculated by LiteLLM for certain providers
 # print(f"Cost of RAG: {cost}")

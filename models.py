@@ -1,15 +1,25 @@
 import dspy
 import os
+import json
 
 
 # azure gpt-4o-mini
-mini_api_key = os.environ.get("4omini_api")
-mini_endpoint = os.environ.get("4omini_endpoint")
-lm_mini = dspy.LM('azure/gpt-4o-mini', api_key=mini_api_key, api_base=mini_endpoint, api_version="2024-12-01-preview")
+api_config_path = os.environ.get("api_configs")
+with open(api_config_path, "r", encoding="utf-8") as f:
+    api_configs = json.load(f)
+    api_key = api_configs['azure-4omini']['api_key']
+    mini_endpoint = api_configs['azure-4omini']['base_url']
+    mini_version = api_configs['azure-4omini']['api_version']
+
+lm_mini = dspy.LM('azure/gpt-4o-mini', api_key=api_key, api_base=mini_endpoint, api_version=mini_version)
 dspy.configure(lm=lm_mini)
 
 # deepseek-V3
-dp_api_key = os.environ.get("deepseek_api")
+api_config_path = os.environ.get("api_configs")
+with open(api_config_path, "r", encoding="utf-8") as f:
+    api_configs = json.load(f)
+    dp_api_key = api_configs['deepseek']['api_key']
+
 lm = dspy.LM('deepseek/deepseek-chat', api_key=dp_api_key, api_base="https://api.deepseek.com")
 dspy.configure(lm=lm)
 

@@ -1,8 +1,14 @@
 import dspy
 import os
+import json
 
 # attention: all deepseek models do not support mutilmodel input
-dp_api_key = os.environ.get("deepseek_api")
+api_config_path = os.environ.get("api_configs")
+with open(api_config_path, "r", encoding="utf-8") as f:
+    api_configs = json.load(f)
+    dp_api_key = api_configs['deepseek']['api_key']
+
+
 lm = dspy.LM('deepseek/deepseek-chat', api_key=dp_api_key, api_base="https://api.deepseek.com")
 dspy.configure(lm=lm)
 dspy.settings.configure(track_usage=True)
